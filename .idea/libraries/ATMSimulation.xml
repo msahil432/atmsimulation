@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ATMSimulation">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/ATMSimulation.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
