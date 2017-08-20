@@ -5,11 +5,7 @@
  */
 package atmsimulation;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Scanner;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  *
@@ -69,7 +65,7 @@ public class ATM {
         SortedSet<Integer> notes = new TreeSet<>(Collections.reverseOrder());
         notes.addAll(dominationDetails.keySet());
         int maxNote = notes.first(), minNote = notes.last();
-        
+
         int rem = amount%minNote;
         if(rem!=0){
             throw new Exception("Cannot dispense given amount as they are not a multiple of "+minNote);
@@ -77,7 +73,7 @@ public class ATM {
         if(amount>totalCash){
             throw new Exception("Insufficient Funds in ATM");
         }
-        
+
         int remaining = amount;
         HashMap<Integer, Integer> dispensedCash = new HashMap<>();
         for(Integer note: notes){
@@ -91,17 +87,83 @@ public class ATM {
             }
             if(no>0){
                 dispensedCash.put(note, no);
-                dominationDetails.put(note, notesNo-no); 
+                dominationDetails.put(note, notesNo-no);
             }
             remaining-=(no*note);
         }
         if(remaining>0)
             throw new Exception("Amount can't be dispensed.");
         totalCash -= amount;
-        printHashMap(dispensedCash);
+        printNotes(dispensedCash);
+    }
+
+    private void provideOptimal2(int amount) throws Exception{
+        SortedSet<Integer> notes = new TreeSet<>(Collections.reverseOrder());
+        notes.addAll(dominationDetails.keySet());
+        int maxNote = notes.first(), minNote = notes.last();
+
+        if(amount>totalCash){
+            throw new Exception("Insufficient Funds in ATM");
+        }
+        if(amount<minNote){
+            throw new Exception("Amount less than Minimum Domination");
+        }
+
+        int length = 2, t = maxNote;
+        while(t/10>0){
+            length++;
+            t=t%10;
+        }
+
+        int[] remain = new int[length-1];
+        for(int i=0; i<length-1; i++){
+            remain[i] = (int) (amount%Math.pow(10,i));
+        }
+        /**
+            This would make data like this:
+                    [no of notes][2][0][0][0]
+                    [no of notes][0][5][0][0]
+         **/
+        int[][] mNotes = new int[length][notes.size()];
+        Iterator iterator = notes.iterator();
+        int i =0;
+        while(iterator.hasNext()){
+            int temp = (Integer)iterator.next();
+            i++;
+            for(int j=0; j<length; j++){
+                mNotes[j][i] = (int)(temp%Math.pow(10, j));
+            }
+            mNotes[length-1][i]= dominationDetails.get(temp);
+        }
+
+        for(i=0; i<notes.size(); i++){
+
+        }
+
+        int remaining = amount;
+        HashMap<Integer, Integer> dispensedCash = new HashMap<>();
+        for(Integer note: notes){
+            int notesNo= dominationDetails.get(note);
+            if(notesNo<1){
+                continue;
+            }
+            int no= remaining/note;
+            if(no>notesNo){
+                no = notesNo;
+            }
+            if(no>0){
+                dispensedCash.put(note, no);
+                dominationDetails.put(note, notesNo-no);
+            }
+            remaining-=(no*note);
+        }
+        if(remaining>0)
+            throw new Exception("Amount can't be dispensed.");
+        totalCash -= amount;
+        printNotes(dispensedCash);
     }
     
-    private void printHashMap(HashMap<Integer, Integer> map){
+    private void printNotes(HashMap<Integer, Integer> map){
         System.out.println("\n\n-------------------------------");
         int total=0;
         System.out.println("The notes are:");
